@@ -5,6 +5,8 @@ using openspace.DataAccess.Repositories;
 using openspace.Web.Hubs;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
+using System.Security.Cryptography;
 
 namespace openspace.Web.Controllers
 {
@@ -16,6 +18,9 @@ namespace openspace.Web.Controllers
 
         public SessionRoomsController(ISessionRepository sessionRepository, IHubContext<SessionsHub, ISessionsHub> sessionsHub)
         {
+            var name = CreateMD5(sessionRepository.Get(0).Result.Name);
+            Console.WriteLine(name);    
+
             _sessionRepository = sessionRepository;
             _sessionsHub = sessionsHub;
         }
@@ -69,5 +74,38 @@ namespace openspace.Web.Controllers
 
             return room;
         }
+
+        public static string CreateMD5(string input)
+{
+    // Use input string to calculate MD5 hash
+    using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+    {
+        byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+        byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+        return Convert.ToHexString(hashBytes); // .NET 5 +
+
+        // Convert the byte array to hexadecimal string prior to .NET 5
+        // StringBuilder sb = new System.Text.StringBuilder();
+        // for (int i = 0; i < hashBytes.Length; i++)
+        // {
+        //     sb.Append(hashBytes[i].ToString("X2"));
+        // }
+        // return sb.ToString();
+    }
+}
+
+        public static byte[] encryptString()
+    {
+        SymmetricAlgorithm serviceProvider = new DESCryptoServiceProvider();
+        byte[] key = { 16, 22, 240, 11, 18, 150, 192, 21 };
+        serviceProvider.Key = key;
+        ICryptoTransform encryptor = serviceProvider.CreateEncryptor();
+
+        String message = "Hello GitHubDay";
+        byte[] messageB = System.Text.Encoding.ASCII.GetBytes(message);
+        return encryptor.TransformFinalBlock(messageB, 0, messageB.Length);
+    }
+
     }
 }
